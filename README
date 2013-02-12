@@ -1,3 +1,7 @@
 This is a repository for perl scripts to run against Nexpose.  
 
 Each directory contains an independent script.
+
+Right now, there is only one script:
+
+* GroupMaker - used to create groups of groups in Nexpose.  You can use this to create more complex groupings than Nexpose supports out of the box.
