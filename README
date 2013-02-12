@@ -5,5 +5,3 @@ Each directory contains an independent script.
 Right now, there is only one script:
 
 * GroupMaker - used to create groups of groups in Nexpose.  You can use this to create more complex groupings than Nexpose supports out of the box.
-This script uses only the standard Perl library, so you should be able to download it and run it on any machine
-with Perl installed.
