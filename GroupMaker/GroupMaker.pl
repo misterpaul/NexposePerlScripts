@@ -1,4 +1,5 @@
 #! /usr/bin/perl
+# to do - address error handling if a group your group is dependent on is deleted
 use strict;
 use warnings;
 
