@@ -1,7 +1,4 @@
 #! /usr/bin/perl
-# to do: credits, POD
-# perl -d GroupMaker.pl --host=vulnscan01.llbean.com --port=443 --user=GroupMaker --debug --rotate=1
-# nexpose-groupmaker
 use strict;
 use warnings;
 
