@@ -1,5 +1,4 @@
 #! /usr/bin/perl
-# to do - address error handling if a group your group is dependent on is deleted
 use strict;
 use warnings;
 
@@ -67,6 +66,7 @@ if ($rotatelogs) {
 
 unless ($g_rebuild) {
 	print <<HEADER;
+
 **************************************************************************
 * GroupMaker - please run GroupMaker.pl --man for complete info on use. *
 **************************************************************************
@@ -101,7 +101,7 @@ if ($response->content=~/session-id="(.+)"/)
 }
  else
  {
-	ERROR ("Login Failed.");
+	ERROR ("ERROR: Login Failed.");
 	DEBUG ("Response: " . $response->as_string);
  }
 
@@ -171,7 +171,7 @@ sub sendXmlRequest
       unless ($g_rebuild) {
 		print "\n\nRequest failed => " . $response->content . "\n\n";
 	  }
-      ERROR("Request failed => " . $response->content );
+      INFO("ERROR: Request failed => " . $response->content );
    }
    
    return $response;
@@ -183,7 +183,7 @@ sub createGroup {
 	my $devices = shift;
 
 	# create the devices
-	my $devxml;
+	my $devxml = "";
 	foreach my $dev (@$devices) {
 		$devxml .= qq(<device id="$dev"></device>);
 	}
@@ -207,8 +207,11 @@ REQUEST
 	# run the request 
     $response = &sendXmlRequest($ua, $req);
 	DEBUG ($response->content);
-	if ($response->content=~/success="1"/ and !$g_rebuild) {
-		print "Group created successfully\n";
+	if ($response->content=~/success="1"/) {
+			unless ($g_rebuild) {
+				print "Group created successfully\n";
+			}
+		INFO("Created group $groupInfo->{'name'}");
 	}
 
 }
@@ -224,41 +227,21 @@ sub getCommand
 	my $grouplist = join("\n", map {"    ( " . $groupList->{$_ }->{'id'}  . " )\t" . $_} @groups);
 
 	print <<INSTRUCTIONS;
-
    Group Id	Group Name
    --------	--------------------------------------------------
 $grouplist
 
  Define your group of groups by using the Group Ids above and logic
- statements. You can use AND, OR, NOT, and parentheses.
-
- Or, use MATCH() or IMATCH() to select all the groups that match a
- regular expression. (MATCH() and IMATCH() can not be used with group
- numbers or logic statements.)  When using MATCH & IMATCH, be sure
- to escape and special characters (pretty much anything that isn't
+ statements using AND, OR, NOT, and parentheses. Or, use MATCH() 
+ or IMATCH() to select all the groups that match a regular expression. 
+ (NOTE: MATCH() and IMATCH() can not be used with group numbers or 
+ logic statements.)  When using MATCH & IMATCH, be sure
+ to escape any special characters (pretty much anything that isn't
  a number or letter) with a backslash \ if they are a part of the 
  search string.
 
  Keep it simple. You can build more complex groups by making groups of 
  these groups.
-
- SAMPLES:
- 1 OR 2 OR 3
-    -- this group will have everything from 1, 2, & 3
-
- (1 OR 2 OR 3) AND NOT 4
-    -- this group will have everything from 1, 2, & 3, as long
-       as it is not in 4
-
- (1 AND 2) 
-    -- this group will have everything that appears in both 1 & 2 
-
- MATCH(^devices)
-    -- this group will have everything that is in any group whose name begins
-       with "devices"
-
- IMATCH(^devices)
-    -- same as above, but case-independent.
 
 Define your group of groups here: 
 INSTRUCTIONS
@@ -387,6 +370,7 @@ sub dologic {
 	# and returns a list of devices for the new group
 	my $command = shift;
 	my $groupList = shift;
+	my $failed = 0;		# set this flag if we fail to build the group properly
 
 	# need a unique list of these numbers. 
 	my @groupIds = uniquelist($command =~ /\d+/g);
@@ -397,8 +381,15 @@ sub dologic {
 
 		# get the details from group 
 		$response = &sendXmlRequest($ua, '<AssetGroupConfigRequest session-id="' . $g_session . '" group-id="' . ($gid) . '"/>');
-#		my $groupConfig = $g_xml->XMLin($response->content, ForceArray=>['Devices','devices', 'id'])->{AssetGroup};
+		# check to see if the call failed.  If so, mark this group as failed, and we'll put no groups in it.
+		if ($response->content =~ /success="0"/) {
+			$failed = 1;
+			ERROR("ERROR: Failed to get Group Config data for group id $gid.  This new group will have no assets.");
+			return ();
+		}
 		my $groupConfig = $g_xml->XMLin($response->content, KeyAttr=>[], ForceArray=>['device'])->{AssetGroup};
+
+
 	
 		# walk through the devices
 		foreach my $d_hash (@{$groupConfig->{'Devices'}->{'device'}}) {
@@ -600,7 +591,7 @@ sub reverseOrderThem {
 	my $depth = shift;
 	$depth++;
 	if ($depth > $maxdepth) {
-		ERROR("Excessive recursion trying to determine rebuild order. Recursion exceeded $maxdepth. Exiting.");
+		ERROR("ERROR: Excessive recursion trying to determine rebuild order. Recursion exceeded $maxdepth. Exiting.");
 		die "Excessive recursion trying to determine rebuild order. Recursion exceeded $maxdepth. Exiting.";
 	}
 	foreach my $id (reverse sort @$list) { # go through the list in reverse order b/c bigger ids probably depend on smaller ids (created earlier)
@@ -707,6 +698,121 @@ If a file exists with the name of the logfile, rename it, adding .old to the end
 
 If you need anything more sophisticated, write it yourself, or use an external tool to do it.
 
+=item --man
+
+Displays the full documentation (man page)
+
+=item --help
+
+Displays a shortened documentation
+
+=back
+
+=head1 CREATING NEW GROUPS.
+
+When you run GroupMaker interactively, you are guided through the process of creating a new
+group.  First, you are presented with a list of all your current groups and their group ids.
+It will look something like this: 
+
+=over 4
+
+ **************************************************************************
+ * GroupMaker - please run GroupMaker.pl --man for complete info on use. *
+ **************************************************************************
+
+   Group Id     Group Name
+   --------     --------------------------------------------------
+    ( 3 )       A Group I Created
+    ( 1 )       ALL ASSETS
+    ( 2 )       Test Group
+
+ Define your group of groups by using the Group Ids above and logic
+ statements using AND, OR, NOT, and parentheses. Or, use MATCH()
+ or IMATCH() to select all the groups that match a regular expression.
+ (NOTE: MATCH() and IMATCH() can not be used with group numbers or
+ logic statements.)  When using MATCH & IMATCH, be sure
+ to escape any special characters (pretty much anything that isn't
+ a number or letter) with a backslash  if they are a part of the
+ search string.
+
+ Keep it simple. You can build more complex groups by making groups of
+ these groups.
+
+ Define your group of groups here:
+
+=back
+
+At this point, you create a rule to define what your group will contain.
+
+For example:
+
+=over 4
+
+=over 4
+
+=item 1 OR 2 OR 3
+
+This group will have everything from 1, 2, & 3
+
+=item (1 OR 2 OR 3) AND NOT 4
+
+This group will have everything from 1, 2, & 3, as long
+as it is not in 4
+
+=item 1 AND 2
+
+This group will have everything that appears in both 1 & 2
+
+=item MATCH(^teams)
+
+This group will have everything that is in any group whose name begins
+with "teams"
+
+=item IMATCH(^teams)
+
+Same as above, but case-independent.
+
+=back
+
+=back
+
+Next, you are asked to provide a name for the group:
+
+=over 4
+
+ Now, provide the details about the group we're going to create.
+
+ Group Name:
+
+=back
+
+Then, you are asked to enter a description for the group (this
+is optional).
+
+=over 4
+
+ Description:
+
+=back
+
+Finally, you are asked whether you will want this group rebuilt
+when you run GroupMaker with the --rebuild option.
+
+=over 4
+
+ Do you want to rebuild this group whenever GroupMaker is run with --rebuild?
+ Please enter Yes, No, or Quit (y,n,q):
+
+=back
+
+If all goes well, you'll see a message indicating that your group was built,
+and you're done!
+
+=over 4
+
+ Creating group My Sample Group...
+ Group created successfully
+
 =back
 
 =head1 LOGGING
@@ -803,18 +909,18 @@ other, you would use AND:
 =item Example 3: All groups with "Team" in the name
 
 In this example, let's assume you create dynamic asset groups for each team and have
-a naming convention for these groups: each one begins with "Team -" 
+a naming convention for these groups: each one begins with "Team" 
 and the team name.  EG, "Team - Network" for all the network team's assets. If you
-want a group of all the assets that have been assigned to a "Devices" group, you could
+want a group of all the assets that have been assigned to a "Team" group, you could
 run GroupMaker and create a group with the following rule:
 
 =over 4
 
-IMATCH(^devices)
+IMATCH(^team)
 
 =back
 
-imatch will do a case-insensitive match for the regular expression ^devices.  The ^ is used
+imatch will do a case-insensitive match for the regular expression ^team.  The ^ is used
 in regular expressions to indicate the start of a line.
 
 =item Example 4: All assets that aren't assigned to a "Team" group
@@ -835,6 +941,20 @@ in "All Teams", you would create a group with the following rule:
 =back
 
 =back
+
+=head1 INTERNALS
+
+GroupMaker adds its own information to the group's description.  If you edit the
+group within Nexpose, you will see that the description looks something like this:
+
+=over 4
+
+The description I entered (This group was created by the GroupMaker script. Rule='imatch(^team)'. Rebuild=On. First created: Tue Feb 12 16:02:13 2013. Rebuilt: Tue Feb 12 21:08:24 2013.)
+ 
+=back
+
+You can edit the description before and after the parenthesis however you want. Just don't
+touch what is between the parenthesis, unless you want to mess up your group definitions!
 
 =head1 CAVEATS
 

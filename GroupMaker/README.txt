@@ -76,6 +76,86 @@ OPTIONS
         If you need anything more sophisticated, write it yourself, or use
         an external tool to do it.
 
+    --man
+        Displays the full documentation (man page)
+
+    --help
+        Displays a shortened documentation
+
+CREATING NEW GROUPS.
+    When you run GroupMaker interactively, you are guided through the
+    process of creating a new group. First, you are presented with a list of
+    all your current groups and their group ids. It will look something like
+    this:
+
+         **************************************************************************
+         * GroupMaker - please run GroupMaker.pl --man for complete info on use. *
+         **************************************************************************
+
+           Group Id     Group Name
+           --------     --------------------------------------------------
+            ( 3 )       A Group I Created
+            ( 1 )       ALL ASSETS
+            ( 2 )       Test Group
+
+         Define your group of groups by using the Group Ids above and logic
+         statements using AND, OR, NOT, and parentheses. Or, use MATCH()
+         or IMATCH() to select all the groups that match a regular expression.
+         (NOTE: MATCH() and IMATCH() can not be used with group numbers or
+         logic statements.)  When using MATCH & IMATCH, be sure
+         to escape any special characters (pretty much anything that isn't
+         a number or letter) with a backslash  if they are a part of the
+         search string.
+
+         Keep it simple. You can build more complex groups by making groups of
+         these groups.
+
+         Define your group of groups here:
+
+    At this point, you create a rule to define what your group will contain.
+
+    For example:
+
+        1 OR 2 OR 3
+            This group will have everything from 1, 2, & 3
+
+        (1 OR 2 OR 3) AND NOT 4
+            This group will have everything from 1, 2, & 3, as long as it is
+            not in 4
+
+        1 AND 2
+            This group will have everything that appears in both 1 & 2
+
+        MATCH(^teams)
+            This group will have everything that is in any group whose name
+            begins with "teams"
+
+        IMATCH(^teams)
+            Same as above, but case-independent.
+
+    Next, you are asked to provide a name for the group:
+
+         Now, provide the details about the group we're going to create.
+
+         Group Name:
+
+    Then, you are asked to enter a description for the group (this is
+    optional).
+
+         Description:
+
+    Finally, you are asked whether you will want this group rebuilt when you
+    run GroupMaker with the --rebuild option.
+
+         Do you want to rebuild this group whenever GroupMaker is run with --rebuild?
+         Please enter Yes, No, or Quit (y,n,q):
+
+    If all goes well, you'll see a message indicating that your group was
+    built, and you're done!
+
+         Creating group My Sample Group...
+         Group created successfully
+
 LOGGING
     All results are logged to groupmaker.log unless overridden by --logfile.
 
@@ -137,14 +217,14 @@ EXAMPLES
         each team and have a naming convention for these groups: each one
         begins with "Team" and the team name. EG, "Team - Network" for all
         the network team's assets. If you want a group of all the assets
-        that have been assigned to a "Team" group, you could run
-        GroupMaker and create a group with the following rule:
+        that have been assigned to a "Team" group, you could run GroupMaker
+        and create a group with the following rule:
 
             IMATCH(^team)
 
         imatch will do a case-insensitive match for the regular expression
-        ^team. The ^ is used in regular expressions to indicate the
-        start of a line.
+        ^team. The ^ is used in regular expressions to indicate the start of
+        a line.
 
     Example 4: All assets that aren't assigned to a "Team" group
         This example builds on the previous one. You need to find all the
@@ -161,6 +241,19 @@ EXAMPLES
         rule:
 
             10 AND NOT 15
+
+INTERNALS
+    GroupMaker adds its own information to the group's description. If you
+    edit the group within Nexpose, you will see that the description looks
+    something like this:
+
+        The description I entered (This group was created by the GroupMaker
+        script. Rule='imatch(^team)'. Rebuild=On. First created: Tue Feb 12
+        16:02:13 2013. Rebuilt: Tue Feb 12 21:08:24 2013.)
+
+    You can edit the description before and after the parenthesis however
+    you want. Just don't touch what is between the parenthesis, unless you
+    want to mess up your group definitions!
 
 CAVEATS
     The script has not been tested on a system with only 1 existing asset
