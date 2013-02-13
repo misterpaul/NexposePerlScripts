@@ -3,14 +3,17 @@ NAME
     complex Asset Groups.
 
 SYNOPSIS
+    perl GroupMaker.pl
+
     perl GroupMaker.pl --user=myname --host=nexpose.acme.com --port 3780
 
-    perl GroupMaker.pl --rebuild
+    perl GroupMaker.pl --rebuild --user=groupmaker --pass=gr0upm^k3r
+    --host=nexpose.acme.com --port 3780 --rotate=100
 
 DESCRIPTION
     I wish Nexpose had the ability to create groups of groups. That is, you
     might need a group that was everything in Group A, Group B, but not in
-    Group C. I am writing GroupMaker to address this need.
+    Group C. I wrote GroupMaker to address this need.
 
     When you create groups with a script (using the API), you can only
     create static groups. Therefore GroupMaker creates static groups. Once
@@ -254,6 +257,22 @@ INTERNALS
     You can edit the description before and after the parenthesis however
     you want. Just don't touch what is between the parenthesis, unless you
     want to mess up your group definitions!
+
+RECOMMENDATIONS
+    *   Keep your logic simple. For complex groups, build simple groups,
+        then build groups of those groups. That way, you can check the
+        intermediate groups to see that they are what you expect.
+
+    *   Look out for groups with 0 members. There may have been an error
+        when rebuilding the group.
+
+    *   Rebuilding
+
+        - Set up a schedule (eg cron) to run --rebuild nightly or a few
+        times a day.
+        - Always run --rotate when you run --rebuild
+        - Monitor your logs Search for "ERROR". Better yet, ship the logs to
+        a monitoring tool that will alert if it sees ERROR.
 
 CAVEATS
     The script has not been tested on a system with only 1 existing asset
