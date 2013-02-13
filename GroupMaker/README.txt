@@ -135,15 +135,15 @@ EXAMPLES
     Example 3: All groups with "Team" in the name
         In this example, let's assume you create dynamic asset groups for
         each team and have a naming convention for these groups: each one
-        begins with "Team -" and the team name. EG, "Team - Network" for all
+        begins with "Team" and the team name. EG, "Team - Network" for all
         the network team's assets. If you want a group of all the assets
-        that have been assigned to a "Devices" group, you could run
+        that have been assigned to a "Team" group, you could run
         GroupMaker and create a group with the following rule:
 
-            IMATCH(^devices)
+            IMATCH(^team)
 
         imatch will do a case-insensitive match for the regular expression
-        *^devices*. The ^ is used in regular expressions to indicate the
+        ^team. The ^ is used in regular expressions to indicate the
         start of a line.
 
     Example 4: All assets that aren't assigned to a "Team" group
@@ -175,65 +175,3 @@ COPYRIGHT AND LICENSE
 
     This tool is free software; you may redistribute it and/or modify it
     under the same terms as Perl.
-
-
-H:\perl\nexpose\GroupMaker>perl GroupMaker.pl -?
-Usage:
-    perl GroupMaker.pl --user=myname --host=nexpose.acme.com --port 3780
-
-    perl GroupMaker.pl --rebuild
-
-Options:
-    --rebuild
-        Rebuilds all the groups that are set to Rebuild=On. It runs in a
-        non-interactive manner. Therefore, you must also set user, pass,
-        host, and port, either in the command line or by editing the script.
-        Rebuilding a group defined by MATCH or IMATCH will re-run the match,
-        so if a group was added or deleted, results may change. Also, there
-        is no easy way to predict the correct order to rebuild matches (if
-        one matched group depends on another matched group), so results
-        could be off. Rebuilding a group defined by Group Ids will fail if
-        one of the groups in the definition was deleted. The rebuilt group
-        will have no devices.
-
-        You may wish to run with --rebuild before running interactively to
-        make sure your groups are up to date.
-
-        GroupMaker analyzes the dependencies among groups of groups and
-        rebuilds them in the proper order. One exception: it does not yet do
-        this for groups defined with MATCH or IMATCH. I intend to fix that
-        soon.
-
-    --logfile=filename.log
-        Sets the log file to filename.log. By default, the logfile is
-        "groupmaker.log"
-
-    --user=username
-        Sets the username. You can edit the script to hard-code this if you
-        wish.
-
-    --pass=password
-        Sets the password. You can edit the script to hard-code this if you
-        wish.
-
-    --host=hostname
-        Sets the Nexpose host to connect to. You can edit the script to
-        hard-code this if you wish.
-
-    --port=port_number
-        Sets the port used by Nexpose (most systems use 3780). You can edit
-        the script to hard-code this if you wish.
-
-    --rotate=log_size
-        Rotates any log files larger than log_size (in MB).
-
-        The script uses a very simplistic log rotation:
-
-        (1) If a file exists with the same name as the logfile plus .old (eg
-            groupmaker.log.old), delete it.
-
-        (2) If a file exists with the name of the logfile, rename it, adding
-            .old to the end.
-
-        If you need anything more sophisticated, write it yourself, or use
-        an external tool to do it.
