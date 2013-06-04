@@ -543,6 +543,7 @@ sub getRebuildGroups {
 	# do the analysis
 	foreach my $groupName (keys %$groupList) {
 		my $desc = $groupList->{$groupName}->{'description'};
+    next unless $desc; # Skip groups that do not have descriptions.
 		my $id =   $groupList->{$groupName}->{'id'};
 		my ($prefix, $rule, $rebuild, $birthday, $suffix) = 
 			$desc =~ /(.*\(This group was created by the GroupMaker script\. Rule\=\')(.*)(\'\. Rebuild\=(?:Off|On).)( First created: $datematch)(?:\. Rebuilt: $datematch)?(\.\).*)/;
