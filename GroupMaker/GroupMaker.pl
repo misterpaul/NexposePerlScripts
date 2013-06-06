@@ -538,7 +538,7 @@ sub getRebuildGroups {
 	# dependency tree components: (parents depend on children in this case)
 	my $predecessors;		# group->list of groups it depends on (must be built before)
 	my $successors;   # group->list of groups dependent on it (must be built after)
-	my $datematch = qr([A-Z][a-z][a-z] [A-Z][a-z][a-z] \d\d? \d\d:\d\d:\d\d \d\d\d\d);
+	my $datematch = qr([A-Z][a-z][a-z] [A-Z][a-z][a-z] [ |\d]\d? \d\d:\d\d:\d\d \d\d\d\d);
 
 	# do the analysis
 	foreach my $groupName (keys %$groupList) {
