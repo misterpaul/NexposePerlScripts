@@ -538,11 +538,12 @@ sub getRebuildGroups {
 	# dependency tree components: (parents depend on children in this case)
 	my $predecessors;		# group->list of groups it depends on (must be built before)
 	my $successors;   # group->list of groups dependent on it (must be built after)
-	my $datematch = qr([A-Z][a-z][a-z] [A-Z][a-z][a-z] [ |\d]\d? \d\d:\d\d:\d\d \d\d\d\d); #match single digit days with space (Thu Jun  6 03:46:10 2013) or double digit without space (Thu Jun 16 03:46:10 2013)
+	my $datematch = qr([A-Z][a-z][a-z] [A-Z][a-z][a-z] [ 1-3]\d \d\d:\d\d:\d\d \d\d\d\d);
 
 	# do the analysis
 	foreach my $groupName (keys %$groupList) {
 		my $desc = $groupList->{$groupName}->{'description'};
+    next unless $desc; # Skip groups that do not have descriptions.
 		my $id =   $groupList->{$groupName}->{'id'};
 		my ($prefix, $rule, $rebuild, $birthday, $suffix) = 
 			$desc =~ /(.*\(This group was created by the GroupMaker script\. Rule\=\')(.*)(\'\. Rebuild\=(?:Off|On).)( First created: $datematch)(?:\. Rebuilt: $datematch)?(\.\).*)/;
