@@ -995,6 +995,39 @@ in such a situation.  (On the other hand, not sure how you would use it in such 
 The script assumes Nexpose enforces unique group names.  If two groups can have the same
 name, this may fail.
 
+=head1 INSTALLATION
+
+This script makes use of a handful of libraries that are not included in the standard Perl distribution.
+You will need to install them from CPAN.  On Windows, you can load them easily with cpan.  On Unix, it may be trickier, 
+depending on which flavor you are using.  Before installing the perl modules, I had to install a bunch of other things.
+
+Here are the CPAN modules you'll need to install, regardless of what system you are on:
+
+=over4
+
+=item * XML::Simple (cpanm XML::Simple)
+
+=item * Term::ReadKey (cpanm Term::ReadKey)
+
+=item * Log::Log4perl (cpanm Log::Log4perl)
+
+=back 
+
+On Ubuntu Server 12.04, I had to install the following items before I could install the perl modules above:
+
+= over 4
+
+=item * make (apt-get install make)
+
+=item * gcc (apt-get install gcc)
+
+=item * expat-devel (apt-get install libexpat1-dev)  NOTE: on Debian systems (including RedHat and Ubuntu)
+the package is named libexpat1-dev, not expat-devel. On other Unix flavors, it might be expat-devel
+
+=item * cpanm (cpan App::cpanminus)
+
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2013 misterpaul
