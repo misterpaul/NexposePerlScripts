@@ -281,7 +281,38 @@ CAVEATS
 
     The script assumes Nexpose enforces unique group names. If two groups
     can have the same name, this may fail.
+    
+INSTALLATION
+    This script makes use of a handful of libraries that are not included 
+    in the standard Perl distribution. You will need to install them from 
+    CPAN.  On Windows, you can load them easily with cpan.  On Unix, it 
+    may be trickier, depending on which flavor you are using.  Before 
+    installing the perl modules, I had to install a bunch of other things.
 
+    Here are the CPAN modules you'll need to install, regardless of what 
+    system you are on:
+
+    *    XML::Simple (cpanm XML::Simple)
+
+    *    Term::ReadKey (cpanm Term::ReadKey)
+
+    *    Log::Log4perl (cpanm Log::Log4perl)
+
+    On Ubuntu Server 12.04, I had to install the following items before I 
+    could install the perl modules above:
+
+    *    make (apt-get install make)
+
+    *    gcc (apt-get install gcc)
+
+    *    expat-devel (apt-get install libexpat1-dev)  NOTE: on Debian 
+         systems (including RedHat and Ubuntu) the package is named 
+         libexpat1-dev, not expat-devel. On other Unix flavors, it might be 
+         expat-devel.
+
+    *    cpanm (cpan App::cpanminus)
+
+   
 COPYRIGHT AND LICENSE
     Copyright 2013 misterpaul
 
