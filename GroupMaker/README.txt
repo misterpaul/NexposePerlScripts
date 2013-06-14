@@ -297,6 +297,11 @@ INSTALLATION
     *    Term::ReadKey (cpanm Term::ReadKey)
 
     *    Log::Log4perl (cpanm Log::Log4perl)
+    
+    *    IO::Socket::SSL (cpanm IO::Socket::SSL)
+    
+    *    LWP::Protocol::https (cpanm LWP::Protocol::https)
+         This might also install IO::Socket::SSL for you
 
     On Ubuntu Server 12.04, I had to install the following items before I 
     could install the perl modules above:
@@ -309,6 +314,13 @@ INSTALLATION
          systems (including RedHat and Ubuntu) the package is named 
          libexpat1-dev, not expat-devel. On other Unix flavors, it might be 
          expat-devel.
+         
+    *    libnet-ssleay-perl (apt-get install libnet-ssleay-perl)
+
+    *    libcrypt-ssleay-perl (apt-get install libcrypt-ssleay-perl) 
+         I'm not sure this is really needed.  You might try without it.
+    
+    *    libssl-dev (apt-get install libssl-dev)
 
     *    cpanm (cpan App::cpanminus)
 
