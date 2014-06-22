@@ -1,3 +1,19 @@
+THIS SCRIPT IS DEPRECATED...
+
+Nexpose now contains tags, which support all the functionality this script provides
+for asset groups.  Tag definitions can refer to other tags - so you can create
+tags of tags, which are the same as groups of groups.  This allows you to create
+complex logic.
+
+Groups can be defined based on tags, so if you need a group (EG to control user
+access), you can use tags for your complex logic, then create a group based on
+the tags.
+
+-- misterpaul
+
+
+
+
 NAME
     GroupMaker - A script for creating groups of groups in Nexpose to create
     complex Asset Groups.
